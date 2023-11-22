@@ -1,0 +1,6 @@
+- take notes
+- groups for projects
+- create a project
+- add exams & connect with discord events
+    - add announcement + reminder
+    - work with times and configure timezones
