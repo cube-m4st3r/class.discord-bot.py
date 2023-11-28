@@ -1,8 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-
-from src import config
+import config
 
 
 class MathGroup(app_commands.Group):

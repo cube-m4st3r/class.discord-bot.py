@@ -1,4 +1,9 @@
 {
-  "token": "",
-  "hub-server-guild-id": "1091022611779174470"
+  "token": "MTE3NjkwNzM4NTAxNzc0OTUyNA.GQDrhb.N6DHjCYOo6cfFeW_B4w9H2OPy_e8Nm7UU8-L7A",
+  "hub-server-guild-id": "1091022611779174470",
+  "host": "10.0.0.2",
+  "user": "root",
+  "password": "root",
+  "port": "5321",
+  "database": "shuwa"
 }

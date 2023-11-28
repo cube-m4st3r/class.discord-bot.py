@@ -6,6 +6,7 @@ import config
 import discord
 from discord.ext import commands
 from colorama import Back, Fore, Style
+from classes.database import Database
 
 MY_GUILD = discord.Object(id=config.botConfig["hub-server-guild-id"])
 
@@ -45,6 +46,8 @@ class Client(commands.Bot):
         print(f"{prfx} Python Version {Fore.YELLOW} {str(platform.python_version())}")
         print(f"{prfx} Bot Version 0.1")
         print(f"{prfx} Slash CMDs Synced: {Fore.YELLOW + str(len(await self.tree.fetch_commands(guild=MY_GUILD)))} Commands")
+        if Database():
+            print(f"Database connection successful.")
 
 
 client = Client()
