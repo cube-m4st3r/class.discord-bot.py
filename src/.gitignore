@@ -1,4 +1,4 @@
-*bot.json
+bot.json
 __pycache__/*
 *.log
 *.sql
@@ -8,6 +8,7 @@ Data/init-data.txt
 fill_db.py
 test.txt
 .idea/*
+*/.idea/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
