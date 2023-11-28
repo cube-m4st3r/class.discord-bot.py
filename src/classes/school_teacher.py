@@ -1,4 +1,4 @@
-from database import Database
+from classes.database import Database
 
 class School_Teacher(Database):
     def __init__(self, id):

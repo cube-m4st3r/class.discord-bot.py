@@ -1,7 +1,8 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from classes.lesson_grade import Lesson_Grade
+from classes.school_lesson_grade import Lesson_Grade
+from config import botConfig
 
 
 class GradeGroup(app_commands.Group):
@@ -24,4 +25,4 @@ class Grade(commands.Cog):
 
 
 async def setup(client: commands.Bot) -> None:
-    await client.add_cog(Grade(client), guild=discord.Object(id=1091022611779174470))
+    await client.add_cog(Grade(client), guild=discord.Object(id=botConfig["hub-server-guild-id"]))
