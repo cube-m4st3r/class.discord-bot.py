@@ -32,6 +32,27 @@ class GradeGroup(app_commands.Group):
         await interaction.response.defer()
         await interaction.followup.send(content=f"You deleted {input} from subject")
 
+    @app_commands.command()
+    async def overview(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+
+        student = School_Student(id=School_Student()._retrieve_student_by_userid(id=interaction.user.id))
+        idlesson_grades_list = Lesson_Grade()._retrieve_idlesson_grades_for_student(student=student)
+        
+        lesson_grade_list = list()
+
+        for idlesson_grade in idlesson_grades_list:
+            lesson_grade_list.append(Lesson_Grade(id=idlesson_grade[0]))
+
+        grades = discord.Embed()
+        grades.title = "List of your grades"
+
+        for lesson_grade in lesson_grade_list:
+            grades.add_field(name=f"{lesson_grade._lesson._get_name()}", value=f"Grade: {lesson_grade._get_grade()}", inline=False)
+
+        await interaction.followup.send(embed=grades)
+
+
 class Select_School_Lesson(discord.ui.Select):
     def __init__(self, lesson_list, lesson_grade):
         super().__init__(placeholder="Select a lesson", max_values=1)

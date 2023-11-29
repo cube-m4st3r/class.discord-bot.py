@@ -28,6 +28,11 @@ class Lesson_Grade(Database):
         self._cursor.execute(sql)
         return self._cursor.fetchone()[0]
     
+    def _retrieve_idlesson_grades_for_student(self, student):
+        sql = f"SELECT idstudent_has_lesson FROM student_has_lesson WHERE idstudent={student._get_id()}"
+        self._cursor.execute(sql)
+        return self._cursor.fetchall()
+    
     def _get_grade(self):
         return self._grade
     
