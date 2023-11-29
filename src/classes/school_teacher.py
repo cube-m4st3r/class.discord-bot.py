@@ -28,3 +28,15 @@ class School_Teacher(Person):
         self._cursor.execute(sql)
         return self._cursor.fetchone()[0]
 
+    def retrieve_idteacher_list(self):
+        sql = f"SELECT idteacher FROM teacher"
+        self._cursor.execute(sql)
+        
+        idteacher_list = list()
+        for idteacher in self._cursor.fetchall():
+            idteacher_list.append(idteacher[0])
+        
+        return idteacher_list
+    
+    def get_id(self):
+        return self._id
