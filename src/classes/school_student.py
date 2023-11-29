@@ -10,8 +10,8 @@ class School_Student(Person):
         if id is not None:
             self._id = id
             person, user = self.fill_school_student(id=id) 
-            self._givenname = person.get_givenname()
-            self._surname = person.get_surname()
+            self._givenname = person._get_givenname()
+            self._surname = person._get_surname()
             self._user = user
         else:
             pass
@@ -31,5 +31,13 @@ class School_Student(Person):
         self._cursor.execute(sql)
         return self._cursor.fetchone()[0]
     
+    def _retrieve_student_by_userid(self, id):
+        sql = f"SELECT idstudent FROM student WHERE iddiscorduser={id}"
+        self._cursor.execute(sql)
+        return self._cursor.fetchone()[0]
+    
     def set_id(self, id):
         self._id = id
+    
+    def _get_id(self):
+        return self._id

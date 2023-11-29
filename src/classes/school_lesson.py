@@ -15,7 +15,7 @@ class School_Lesson(Database):
             pass
 
     def fill_school_lesson(self, id):
-        sql = f"SELECT name, idteacher FROM lesson WHERE id={id}"
+        sql = f"SELECT name, idteacher FROM lesson WHERE idlesson={id}"
         self._cursor.execute(sql)
         return self._cursor.fetchone()
     
@@ -36,9 +36,14 @@ class School_Lesson(Database):
         idlesson_list = list()
         for idlesson in self._cursor.fetchall():
             idlesson_list.append(idlesson[0])
+        
+        return idlesson_list
     
-    def get_name(self):
+    def _get_name(self):
         return self._name
 
-    def set_name(self, name):
+    def _set_name(self, name):
         self._name = name
+
+    def _get_id(self):
+        return self._id
