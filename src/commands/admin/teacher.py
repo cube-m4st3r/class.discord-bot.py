@@ -10,7 +10,7 @@ class TeacherGroup(app_commands.Group):
     @app_commands.command()
     async def add(self, interaction: discord.Interaction, givenname: str, surname: str):
         await interaction.response.defer()
-        idperson = Person().add_person_to_database(givenname=givenname, surname=surname)
+        idperson = Person()._add_person_to_database(givenname=givenname, surname=surname)
         idteacher = School_Teacher().add_teacher_to_database(idperson=idperson)
         teacher = School_Teacher(id=idteacher)
         await interaction.followup.send(content=f"You added {teacher.get_givenname()} {teacher.get_surname()} as a teacher.")
