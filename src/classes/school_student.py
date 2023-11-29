@@ -9,14 +9,14 @@ class School_Student(Person):
 
         if id is not None:
             self._id = id
-            person, user = self.fill_school_student(id=id) 
+            person, user = self.__fill_school_student(id=id) 
             self._givenname = person._get_givenname()
             self._surname = person._get_surname()
             self._user = user
         else:
             pass
 
-    def fill_school_student(self, id):
+    def __fill_school_student(self, id):
         sql = f"SELECT idperson, iddiscorduser FROM student WHERE idstudent={id}"
         self._cursor.execute(sql)
         result = self._cursor.fetchone()
@@ -34,7 +34,14 @@ class School_Student(Person):
     def _retrieve_student_by_userid(self, id):
         sql = f"SELECT idstudent FROM student WHERE iddiscorduser={id}"
         self._cursor.execute(sql)
-        return self._cursor.fetchone()[0]
+        return self._cursor.fetchone()
+    
+    def _check_if_user_is_student(self, iduser):
+        idstudent = self._retrieve_student_by_userid(id=iduser)[0]
+        if idstudent is not None:
+            return idstudent
+        else:
+            return None
     
     def set_id(self, id):
         self._id = id

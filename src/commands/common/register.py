@@ -19,7 +19,7 @@ class Register(commands.Cog):
         idperson = Person()._add_person_to_database(givenname=givenname, surname=surname)
         idstudent = School_Student()._add_school_student_to_database(idperson=idperson, iduser=iduser)
         student = School_Student(id=idstudent)
-        await interaction.followup.send(content=f"***{student._user._get_username()}***, you have been registered as **{student.get_givenname()} {student.get_surname()}**.")
+        await interaction.followup.send(content=f"***{student._user._get_username()}***, you have been registered as **{student._get_givenname()} {student._get_surname()}**.")
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Register(client=client), guild=discord.Object(id=botConfig["hub-server-guild-id"]))

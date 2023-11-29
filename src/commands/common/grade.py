@@ -2,10 +2,10 @@ from typing import Any
 import discord
 from discord import app_commands
 from discord.ext import commands
-from discord.interactions import Interaction
 from classes.lesson_grade import Lesson_Grade
 from classes.school_lesson import School_Lesson
 from classes.school_student import School_Student
+from utils.utils import check_if_user_is_student
 from config import botConfig
 
 
@@ -36,21 +36,25 @@ class GradeGroup(app_commands.Group):
     async def overview(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
-        student = School_Student(id=School_Student()._retrieve_student_by_userid(id=interaction.user.id))
-        idlesson_grades_list = Lesson_Grade()._retrieve_idlesson_grades_for_student(student=student)
-        
-        lesson_grade_list = list()
+        idstudent = School_Student()._check_if_user_is_student(iduser=interaction.user.id)
 
-        for idlesson_grade in idlesson_grades_list:
-            lesson_grade_list.append(Lesson_Grade(id=idlesson_grade[0]))
+        if idstudent is not None:
+            idlesson_grades_list = Lesson_Grade()._retrieve_idlesson_grades_for_student(student=School_Student(id=idstudent))
+            
+            lesson_grade_list = list()
 
-        grades = discord.Embed()
-        grades.title = "List of your grades"
+            for idlesson_grade in idlesson_grades_list:
+                lesson_grade_list.append(Lesson_Grade(id=idlesson_grade[0]))
 
-        for lesson_grade in lesson_grade_list:
-            grades.add_field(name=f"{lesson_grade._lesson._get_name()}", value=f"Grade: {lesson_grade._get_grade()}", inline=False)
+            grades = discord.Embed()
+            grades.title = "List of your grades"
 
-        await interaction.followup.send(embed=grades)
+            for lesson_grade in lesson_grade_list:
+                grades.add_field(name=f"{lesson_grade._lesson._get_name()}", value=f"Grade: {lesson_grade._get_grade()}", inline=False)
+
+            await interaction.followup.send(embed=grades)
+        else:
+            await interaction.followup.send(content="You are not registered as a student. Please use `/register` to register yourself!")
 
 
 class Select_School_Lesson(discord.ui.Select):
@@ -66,7 +70,7 @@ class Select_School_Lesson(discord.ui.Select):
         self.__lesson_grade._set_school_lesson(lesson=School_Lesson(id=self.values[0]))
         lesson = self.__lesson_grade._get_school_lesson()
 
-        idstudent = School_Student()._retrieve_student_by_userid(id=interaction.user.id)
+        idstudent = School_Student()._retrieve_student_by_userid(id=interaction.user.id)[0]
         Lesson_Grade()._add_grade_to_database(lesson=lesson, student=School_Student(id=idstudent), grade=self.__lesson_grade._get_grade())
         self.__lesson_grade._set_school_student(student=School_Student(id=idstudent))
 
