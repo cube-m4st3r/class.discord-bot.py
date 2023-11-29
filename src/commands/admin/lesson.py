@@ -18,9 +18,9 @@ class LessonGroup(app_commands.Group):
             teacher_list.append(teacher)
         
         lesson = School_Lesson()
-        lesson.set_name(name=name)
+        lesson._set_name(name=name)
 
-        await interaction.followup.send(content=f"Lesson name: **{lesson.get_name()}**", 
+        await interaction.followup.send(content=f"Lesson name: **{lesson._get_name()}**", 
                                         view=Select_School_Teacher_View(teacher_list=teacher_list, lesson=lesson))
 
 class Select_School_Teacher(discord.ui.Select):
@@ -35,9 +35,9 @@ class Select_School_Teacher(discord.ui.Select):
 
         teacher = School_Teacher(id=self.values[0])
 
-        self.__lesson.add_lesson_to_database(name=self.__lesson.get_name(), idteacher=teacher.get_id())
+        self.__lesson.add_lesson_to_database(name=self.__lesson._get_name(), idteacher=teacher.get_id())
         
-        await interaction.message.edit(content=f"You added **{self.__lesson.get_name()}** with **{teacher.get_givenname()} {teacher.get_surname()}** as the teacher.", view=None)
+        await interaction.message.edit(content=f"You added **{self.__lesson._get_name()}** with **{teacher.get_givenname()} {teacher.get_surname()}** as the teacher.", view=None)
 
 class Select_School_Teacher_View(discord.ui.View):
     def __init__(self, teacher_list, lesson):

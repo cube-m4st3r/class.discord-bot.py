@@ -8,8 +8,8 @@ class School_Teacher(Person):
         if id is not None:
             self._id = id
             person = self.fill_school_teacher(id)
-            self._givenname = person.get_givenname()
-            self._surname = person.get_surname()
+            self._givenname = person._get_givenname()
+            self._surname = person._get_surname()
         else: 
             pass
     
@@ -38,5 +38,5 @@ class School_Teacher(Person):
         
         return idteacher_list
     
-    def get_id(self):
+    def _get_id(self):
         return self._id

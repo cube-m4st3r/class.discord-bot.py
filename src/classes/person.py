@@ -27,8 +27,8 @@ class Person(Database):
         self._cursor.execute(sql)
         return self._cursor.fetchone()[0]
 
-    def get_givenname(self):
+    def _get_givenname(self):
         return self._givenname
 
-    def get_surname(self):
+    def _get_surname(self):
         return self._surname
