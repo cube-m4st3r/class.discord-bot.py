@@ -5,7 +5,6 @@ from discord.ext import commands
 from classes.lesson_grade import Lesson_Grade
 from classes.school_lesson import School_Lesson
 from classes.school_student import School_Student
-from utils.utils import check_if_user_is_student
 from config import botConfig
 
 
@@ -75,7 +74,7 @@ class Select_School_Lesson(discord.ui.Select):
         self.__lesson_grade._set_school_student(student=School_Student(id=idstudent))
 
         await interaction.followup.send(content=f"The grade: **{self.__lesson_grade._get_grade()}** has been added to: ***{self.__lesson_grade._lesson._get_name()}***, for you **{self.__lesson_grade._get_school_student()._get_givenname()}**")
-
+        
 class Select_School_Lesson_View(discord.ui.View):
     def __init__(self, lesson_list, lesson_grade):
         super().__init__()
