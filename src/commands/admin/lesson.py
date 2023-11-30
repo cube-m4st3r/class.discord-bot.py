@@ -41,9 +41,9 @@ class Select_School_Teacher(discord.ui.Select):
 
         teacher = School_Teacher(id=self.values[0])
 
-        self.__lesson.add_lesson_to_database(name=self.__lesson._get_name(), idteacher=teacher.get_id())
+        self.__lesson.add_lesson_to_database(name=self.__lesson._get_name(), idteacher=teacher._get_id())
         
-        await interaction.message.edit(content=f"You added **{self.__lesson._get_name()}** with **{teacher.get_givenname()} {teacher.get_surname()}** as the teacher.", view=None)
+        await interaction.message.edit(content=f"You added **{self.__lesson._get_name()}** with **{teacher._get_givenname()} {teacher._get_surname()}** as the teacher.", view=None)
 
 class Select_School_Teacher_View(discord.ui.View):
     def __init__(self, teacher_list, lesson):
