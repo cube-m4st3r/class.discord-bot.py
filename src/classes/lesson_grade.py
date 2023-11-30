@@ -28,11 +28,27 @@ class Lesson_Grade(Database):
         self._cursor.execute(sql)
         return self._cursor.fetchone()[0]
     
+    def _delete_grade_from_database(self):
+        sql = f"DELETE FROM student_has_lesson WHERE idstudent_has_lesson={self._get_id()}"
+        self._cursor.execute(sql)
+        self._database_connection.commit()
+    
     def _retrieve_idlesson_grades_for_student(self, student):
         sql = f"SELECT idstudent_has_lesson FROM student_has_lesson WHERE idstudent={student._get_id()}"
         self._cursor.execute(sql)
         return self._cursor.fetchall()
     
+    def _retrieve_idlesson_grades_from_lesson_for_student(self, student, lesson):
+        sql = f"SELECT idstudent_has_lesson FROM student_has_lesson shl JOIN lesson l ON shl.idlesson = l.idlesson WHERE shl.idstudent={student._get_id()} AND l.idlesson={lesson._get_id()} ORDER BY shl.grade"
+        self._cursor.execute(sql)
+        return self._cursor.fetchall()
+    
+    def _get_id(self):
+        return self._id
+    
+    def _set_id(self, id):
+        self._id = id
+
     def _get_grade(self):
         return self._grade
     

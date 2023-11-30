@@ -1,5 +1,6 @@
 from classes.person import Person
 from classes.user import User
+from classes.school_lesson import School_Lesson
 
 
 class School_Student(Person):
@@ -42,7 +43,19 @@ class School_Student(Person):
             return idstudent
         else:
             return None
-    
+        
+    def _retrieve_attending_lessons(self):
+        sql = f"SELECT DISTINCT l.idlesson FROM student_has_lesson shl JOIN lesson l ON shl.idlesson=l.idlesson WHERE shl.idstudent={self._get_id()}"
+        self._cursor.execute(sql)
+        result = self._cursor.fetchall()
+
+        lessons = list()
+
+        for idlesson in result:
+            lessons.append(School_Lesson(id=idlesson[0]))
+
+        return lessons
+
     def set_id(self, id):
         self._id = id
     
