@@ -12,7 +12,7 @@ class LessonGroup(app_commands.Group):
     @app_commands.checks.has_role(config["class_manager_role_str"])
     async def add(self, interaction: discord.Interaction, name: str):
         await interaction.response.defer()
-        idteacher_list = School_Teacher().retrieve_idteacher_list()
+        idteacher_list = School_Teacher()._retrieve_idteacher_list()
         teacher_list = list()
         for idteacher in idteacher_list:
             teacher = School_Teacher(id=idteacher)
