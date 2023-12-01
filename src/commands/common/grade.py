@@ -6,6 +6,27 @@ from classes.school_lesson import School_Lesson
 from classes.school_student import School_Student
 from config import botConfig
 
+class GradeManipulation():
+    ADD_GRADE = "add_grade"
+    DELETE_GRADE = "delete_grade"
+
+    @classmethod
+    async def _add_grade_to_selected_lesson(interaction, lesson_grade):
+        lesson = lesson_grade._get_school_lesson()
+        idstudent = School_Student()._retrieve_student_by_userid(id=interaction.user.id)[0]
+        lesson_grade._add_grade_to_database(lesson=lesson, student=School_Student(id=idstudent), grade=lesson_grade._get_grade())
+        lesson_grade._set_school_student(student=School_Student(id=idstudent))
+
+        await interaction.message.edit(content=f"The grade: **{lesson_grade._get_grade()}** has been added to: ***{lesson_grade._lesson._get_name()}***, for you **{lesson_grade._get_school_student()._get_givenname()}**", view=None)
+
+    @classmethod
+    async def _delete_grade_from_selected_lesson(interaction, lesson_grade):
+        idstudent = School_Student()._retrieve_student_by_userid(id=interaction.user.id)[0]
+        idlesson_grades_list = Lesson_Grade()._retrieve_idlesson_grades_from_lesson_for_student(student=School_Student(id=idstudent), lesson=lesson_grade._get_school_lesson())
+        lesson_grade_list = [Lesson_Grade(id=idlesson_grade[0]) for idlesson_grade in idlesson_grades_list]
+        lesson_grade._set_school_student(student=School_Student(id=idstudent))
+
+        await interaction.message.edit(view=Select_Grade_From_School_Lesson_View(lesson_grade_list=lesson_grade_list, lesson_grade=lesson_grade))
 
 class GradeGroup(app_commands.Group):
     @app_commands.rename(input='grade')
@@ -28,6 +49,7 @@ class GradeGroup(app_commands.Group):
     @app_commands.command()
     async def delete(self, interaction: discord.Interaction):
         await interaction.response.defer()
+        
         idstudent = School_Student()._check_if_user_is_student(iduser=interaction.user.id)
         student = School_Student(id=idstudent)
 
@@ -59,23 +81,6 @@ class GradeGroup(app_commands.Group):
         else:
             await interaction.followup.send("You are not registered as a student. Please use `/register` to register yourself!")
 
-async def _add_grade_to_selected_lesson(interaction, lesson_grade):
-    lesson = lesson_grade._get_school_lesson()
-    idstudent = School_Student()._retrieve_student_by_userid(id=interaction.user.id)[0]
-    lesson_grade._add_grade_to_database(lesson=lesson, student=School_Student(id=idstudent), grade=lesson_grade._get_grade())
-    lesson_grade._set_school_student(student=School_Student(id=idstudent))
-
-    await interaction.message.edit(content=f"The grade: **{lesson_grade._get_grade()}** has been added to: ***{lesson_grade._lesson._get_name()}***, for you **{lesson_grade._get_school_student()._get_givenname()}**", view=None)
-
-async def _delete_grade_from_selected_lesson(interaction, lesson_grade):
-    idstudent = School_Student()._retrieve_student_by_userid(id=interaction.user.id)[0]
-    idlesson_grades_list = Lesson_Grade()._retrieve_idlesson_grades_from_lesson_for_student(student=School_Student(id=idstudent), lesson=lesson_grade._get_school_lesson())
-    lesson_grade_list = [Lesson_Grade(id=idlesson_grade[0]) for idlesson_grade in idlesson_grades_list]
-    lesson_grade._set_school_student(student=School_Student(id=idstudent))
-
-    await interaction.message.edit(view=Select_Grade_From_School_Lesson_View(lesson_grade_list=lesson_grade_list, lesson_grade=lesson_grade))
-    
-
 class Select_School_Lesson(discord.ui.Select):
     def __init__(self, list, func, lesson_grade):
         super().__init__(placeholder="Select a lesson", max_values=1)
@@ -84,10 +89,10 @@ class Select_School_Lesson(discord.ui.Select):
         self.__func = func
 
         match self.__func:
-            case "add_grade":
+            case GradeManipulation.ADD_GRADE:
                 for lesson in self.__list:
                     self.add_option(label=f"{lesson._get_name()}", description=f"Teacher: {lesson._teacher._get_givenname()} {lesson._teacher._get_surname()}", value=lesson._get_id())
-            case "delete_grade":
+            case GradeManipulation.DELETE_GRADE:
                 for lesson in self.__list:
                     self.add_option(label=f"{lesson._get_name()}", description=f"Teacher: {lesson._teacher._get_givenname()} {lesson._teacher._get_surname()}", value=lesson._get_id())
 
@@ -95,12 +100,12 @@ class Select_School_Lesson(discord.ui.Select):
         await interaction.response.defer()
 
         match self.__func:
-            case "add_grade":
+            case GradeManipulation.ADD_GRADE:
                 self.__lesson_grade._set_school_lesson(lesson=School_Lesson(id=self.values[0]))
-                await _add_grade_to_selected_lesson(interaction=interaction, lesson_grade=self.__lesson_grade)
-            case "delete_grade":
+                await GradeManipulation._add_grade_to_selected_lesson(interaction=interaction, lesson_grade=self.__lesson_grade)
+            case GradeManipulation.DELETE_GRADE:
                 self.__lesson_grade._set_school_lesson(lesson=School_Lesson(id=self.values[0]))
-                await _delete_grade_from_selected_lesson(interaction=interaction, lesson_grade=self.__lesson_grade)
+                await GradeManipulation._delete_grade_from_selected_lesson(interaction=interaction, lesson_grade=self.__lesson_grade)
 
 class Select_Grade_From_School_Lesson(discord.ui.Select):
     def __init__(self, lesson_grade_list, lesson_grade):
@@ -137,7 +142,6 @@ class Grade(commands.Cog):
         self.client = client
 
     grade_group = GradeGroup(name="grade", description="Grade related commands")
-
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Grade(client), guild=discord.Object(id=botConfig["hub-server-guild-id"]))

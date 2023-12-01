@@ -30,7 +30,7 @@ class School_Lesson(Database):
         return self._cursor.fetchone()[0]
     
     def retrieve_idlesson_list(self):
-        sql = f"SELECT idlesson FROM lesson"
+        sql = f"SELECT DISTINCT idlesson FROM lesson"
         self._cursor.execute(sql)
 
         idlesson_list = list()
