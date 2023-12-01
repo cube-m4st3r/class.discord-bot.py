@@ -11,7 +11,7 @@ class GradeManipulation():
     DELETE_GRADE = "delete_grade"
 
     @classmethod
-    async def _add_grade_to_selected_lesson(interaction, lesson_grade):
+    async def _add_grade_to_selected_lesson(cls, interaction, lesson_grade):
         lesson = lesson_grade._get_school_lesson()
         idstudent = School_Student()._retrieve_student_by_userid(id=interaction.user.id)[0]
         lesson_grade._add_grade_to_database(lesson=lesson, student=School_Student(id=idstudent), grade=lesson_grade._get_grade())
@@ -20,7 +20,7 @@ class GradeManipulation():
         await interaction.message.edit(content=f"The grade: **{lesson_grade._get_grade()}** has been added to: ***{lesson_grade._lesson._get_name()}***, for you **{lesson_grade._get_school_student()._get_givenname()}**", view=None)
 
     @classmethod
-    async def _delete_grade_from_selected_lesson(interaction, lesson_grade):
+    async def _delete_grade_from_selected_lesson(cls, interaction, lesson_grade):
         idstudent = School_Student()._retrieve_student_by_userid(id=interaction.user.id)[0]
         idlesson_grades_list = Lesson_Grade()._retrieve_idlesson_grades_from_lesson_for_student(student=School_Student(id=idstudent), lesson=lesson_grade._get_school_lesson())
         lesson_grade_list = [Lesson_Grade(id=idlesson_grade[0]) for idlesson_grade in idlesson_grades_list]
@@ -30,23 +30,29 @@ class GradeManipulation():
 
 class GradeGroup(app_commands.Group):
     @app_commands.rename(input='grade')
-    @app_commands.command()
-    async def add(self, interaction: discord.Interaction, input: str):
+    @app_commands.command(description="Add a grade to selected lesson.")
+    async def add(self, interaction: discord.Interaction, input: int):
         await interaction.response.defer()
 
-        idlesson_list = School_Lesson().retrieve_idlesson_list()
-        lesson_list = list()
+        if input <= 6:
+            idlesson_list = School_Lesson().retrieve_idlesson_list()
+            lesson_list = list()
 
-        for idlesson in idlesson_list:
-            lesson_list.append(School_Lesson(id=idlesson))
+            for idlesson in idlesson_list:
+                lesson_list.append(School_Lesson(id=idlesson))
 
-        lesson_grade = Lesson_Grade()
-        lesson_grade._set_grade(grade=input)
+            lesson_grade = Lesson_Grade()
+            lesson_grade._set_grade(grade=input)
 
-        await interaction.followup.send(content=f"To which lesson would you like to add the grade: **{lesson_grade._get_grade()}**?", 
-                                        view=Select_School_Lesson_View(list=lesson_list, lesson_grade=lesson_grade, func="add_grade"))
+            await interaction.followup.send(content=f"To which lesson would you like to add the grade: **{lesson_grade._get_grade()}**?", 
+                                            view=Select_School_Lesson_View(list=lesson_list, lesson_grade=lesson_grade, func="add_grade"))
+        else:
+            out_of_range_embed = discord.Embed()
+            out_of_range_embed.title = "Your input grade is not valid. Please use the command again!"
+            out_of_range_embed.color = discord.Colour.red()
+            await interaction.followup.send(embed=out_of_range_embed)
 
-    @app_commands.command()
+    @app_commands.command(description="Delete a grade from a selected lesson.")
     async def delete(self, interaction: discord.Interaction):
         await interaction.response.defer()
         
@@ -58,7 +64,7 @@ class GradeGroup(app_commands.Group):
         await interaction.followup.send(content=f"From which lesson should a grade be deleted from?",
                                         view=Select_School_Lesson_View(list=student._retrieve_attending_lessons(), func="delete_grade", lesson_grade=lesson_grade))
 
-    @app_commands.command()
+    @app_commands.command(description="Get a list of your current grades.")
     async def overview(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
