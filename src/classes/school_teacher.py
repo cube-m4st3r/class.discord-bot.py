@@ -20,12 +20,13 @@ class School_Teacher(Person):
         return Person(id=teacher_id)
     
     def _add_teacher_to_database(self, idperson):
-        sql = "INSERT INTO teacher VALUES (null, %s) RETURNING idteacher"
-        self._cursor.execute(sql, (idperson,))
-        teacher_id = self._cursor.fetchone()[0]
+        sql = f"INSERT INTO teacher VALUES (null, {idperson})"
+        self._cursor.execute(sql)
         self._database_connection.commit()
 
-        return teacher_id
+        sql = "SELECT LAST_INSERT_ID()"
+        self._cursor.execute(sql)
+        return self._cursor.fetchone()[0]
 
     def _retrieve_teacher_lessons_from_database(self):
         sql = f"SELECT l.idlesson FROM lesson l JOIN teacher t ON l.idteacher = t.idteacher AND t.idteacher={self._get_id()}"
