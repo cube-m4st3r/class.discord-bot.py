@@ -32,3 +32,6 @@ class Person(Database):
 
     def _get_surname(self):
         return self._surname
+    
+    def _get_full_name(self):
+        return f"{self._get_givenname()} {self._get_surname()}"

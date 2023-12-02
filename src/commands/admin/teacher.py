@@ -4,7 +4,6 @@ from discord import app_commands
 from discord.ext import commands
 from discord.interactions import Interaction
 from classes.school_teacher import School_Teacher
-from classes.school_lesson import School_Lesson
 from classes.person import Person
 from utils.utils import no_permissions_embed
 from config import botConfig, config
@@ -19,15 +18,17 @@ class TeacherManipulation():
         idperson = Person()._add_person_to_database(givenname=givenname, surname=surname)
         idteacher = School_Teacher()._add_teacher_to_database(idperson=idperson)
         teacher = School_Teacher(id=idteacher)
-        await interaction.followup.send(content=f"You added **{teacher._get_givenname()} {teacher._get_surname()}** as a teacher.")
+        await interaction.followup.send(content=f"You added **{teacher._get_full_name()}** as a teacher.")
 
     @classmethod
     async def _delete_teacher_from_database(cls, interaction: discord.Interaction, teacher: School_Teacher):
         if len(teacher._retrieve_teacher_lessons_from_database()) == 0:
             teacher._delete_teacher_from_database()
-            await interaction.message.edit(content=f"You deleted **{teacher._get_givenname()} {teacher._get_surname()}**.", view=None)
+            await interaction.message.edit(content=f"You deleted **{teacher._get_full_name()}**.", 
+                                           view=None)
         else:
-            await interaction.message.edit(content=f"**{teacher._get_givenname()} {teacher._get_surname()}** is still teaching. Make sure to delete the lesson!", view=None)
+            await interaction.message.edit(content=f"**{teacher._get_full_name()}** is still teaching. Make sure to delete the lesson!", 
+                                           view=None)
 
 class TeacherGroup(app_commands.Group):
     @app_commands.command(description="Add a teacher to the database.")
@@ -62,12 +63,15 @@ class Select_School_Teacher(discord.ui.Select):
 
         for idteacher in self.__list:
             teacher = School_Teacher(id=idteacher)
-            self.add_option(label=f"{teacher._get_givenname()} {teacher._get_surname()}", description="", value=teacher._get_id())
+            self.add_option(label=f"{teacher._get_full_name()}", 
+                            description=f"Teaches {len(teacher._retrieve_teacher_lessons_from_database())} lessons", 
+                            value=teacher._get_id())
 
     async def callback(self, interaction: Interaction):
         await interaction.response.defer()
 
-        await TeacherManipulation._delete_teacher_from_database(interaction=interaction, teacher=School_Teacher(id=self.values[0]))
+        await TeacherManipulation._delete_teacher_from_database(interaction=interaction, 
+                                                                teacher=School_Teacher(id=self.values[0]))
 
 class Select_School_Teacher_View(discord.ui.View):
     def __init__(self, list: list):
@@ -78,7 +82,8 @@ class Teacher(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    teacher_group = TeacherGroup(name="teacher", description="Commands related to teachers, for admins only.")
+    teacher_group = TeacherGroup(name="teacher", 
+                                 description="Commands related to teachers.")
 
 async def setup(client: commands.Bot) -> None:
     await client.add_cog(Teacher(client), guild=discord.Object(id=botConfig["hub-server-guild-id"]))
