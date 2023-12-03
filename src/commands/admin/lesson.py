@@ -31,7 +31,18 @@ class LessonManipulation():
 
     @classmethod
     async def _delete_lesson_from_database(cls, interaction: discord.Interaction, lesson: School_Lesson):
-        ...
+        if not lesson._check_lesson_contains_student_grades():
+            lesson._delete_lesson_from_database()
+            await interaction.message.edit(
+                content=f"{lesson._get_name()} has been deleted from the database.",
+                view=None
+            )
+        else:
+            await interaction.message.edit(
+                content=f"{lesson._get_name()} has grades added and therefore can't be deleted.",
+                view=None
+            )
+
 
     @classmethod
     async def _update_lesson_in_database(cls, interaction: discord.Interaction, lesson: School_Lesson):
@@ -54,10 +65,11 @@ class LessonGroup(app_commands.Group):
     async def delete(self, interaction: discord.Interaction):
         await interaction.response.defer()
 
-        
+        await interaction.followup.send(view=Select_School_Lesson_View(list=School_Lesson()._retrieve_idlesson_list(),
+                                                                       func=LessonManipulation.DELETE_LESSON))
     
     @delete.error
-    async def on_add_error(self, interaction: discord.Interaction, error: app_commands.errors.MissingRole):
+    async def on_delete_error(self, interaction: discord.Interaction, error: app_commands.errors.MissingRole):
         await interaction.response.send_message(embed=no_permissions_embed)
 
     #@app_commands.command(description="Get an overview of lessons")
@@ -83,16 +95,43 @@ class Select_School_Teacher(discord.ui.Select):
 
         teacher = School_Teacher(id=self.values[0])
 
-        self.__lesson.add_lesson_to_database(name=self.__lesson._get_name(), 
+        self.__lesson._add_lesson_to_database(name=self.__lesson._get_name(), 
                                              idteacher=teacher._get_id())
         
         await interaction.message.edit(content=f"You added **{self.__lesson._get_name()}** with **{teacher._get_givenname()} {teacher._get_surname()}** as the teacher.", 
                                        view=None)
 
+class Select_School_Lesson(discord.ui.Select):
+    def __init__(self, list: list, func: str):
+        super().__init__(placeholder="Select a lesson", max_values=1)
+        self.__list = list
+        self.__func = func
+
+        match self.__func:
+            case LessonManipulation.DELETE_LESSON:
+                for idlesson in self.__list:
+                    lesson = School_Lesson(id=idlesson)
+                    self.add_option(label=f"{lesson._get_name()}",
+                                    description=f"Teacher: {lesson._get_school_teacher()._get_full_name() if not None else ''}",
+                                    value=lesson._get_id())
+                    
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+       
+        match self.__func:
+            case LessonManipulation.DELETE_LESSON:
+                await LessonManipulation._delete_lesson_from_database(interaction=interaction, 
+                                                                lesson=School_Lesson(id=self.values[0]))
+
 class Select_School_Teacher_View(discord.ui.View):
     def __init__(self, list: list, lesson: School_Lesson, func: str):
         super().__init__()
-        self.add_item(Select_School_Teacher(teacher_list=list, lesson=lesson, func=func))
+        self.add_item(Select_School_Teacher(list=list, lesson=lesson, func=func))
+
+class Select_School_Lesson_View(discord.ui.View):
+    def __init__(self, list: list, func: str):
+        super().__init__()
+        self.add_item(Select_School_Lesson(list=list, func=func))
 
 class Lesson(commands.Cog):
     def __init__(self, client: commands.Bot):
